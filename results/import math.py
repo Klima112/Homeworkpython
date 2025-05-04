@@ -26,7 +26,7 @@ for x, y in zip(x_values[:100], y_values[:100]):
 
 # Построение графика
 plt.figure(figsize=(10, 5))
-plt.plot(x_values, y_values, label="f(x)", color="red")
+plt.plot(x_values, y_values, label="f(x)", color="purple")
 plt.title("График функции f(x) при A = 0, X∈[-10;10]")
 plt.xlabel("x")
 plt.ylabel("f(x)")

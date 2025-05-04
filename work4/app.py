@@ -1,0 +1,77 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.special import spherical_jn, spherical_yn
+import xml.etree.ElementTree as ET
+
+class RCS:
+    def __init__(self, diameter, fmin, fmax):
+        self.diameter = diameter
+        self.fmin = fmin
+        self.fmax = fmax
+        self.radius = diameter / 2
+
+    def calculate_rcs(self, frequency):
+        wavelength = 3e8 / frequency
+        k = 2 * np.pi / wavelength
+        rcs_value = (wavelength**2 / np.pi) * np.abs(
+            sum(
+                (-1)**n * (n + 0.5) * (self.bn(n, k) - self.an(n, k))
+                for n in range(1, 21)  # Limiting to 20 terms for practical computation
+            )
+        )**2
+        return rcs_value
+
+    def an(self, n, k):
+        jn = spherical_jn(n, k * self.radius)
+        hn = self.hn(n, k * self.radius)
+        return jn / hn
+
+    def bn(self, n, k):
+        jn_prev = spherical_jn(n - 1, k * self.radius)
+        jn = spherical_jn(n, k * self.radius)
+        hn_prev = self.hn(n - 1, k * self.radius)
+        hn = self.hn(n, k * self.radius)
+        return (k * self.radius * jn_prev - n * jn) / (k * self.radius * hn_prev - n * hn)
+
+    def hn(self, n, x):
+        jn = spherical_jn(n, x)
+        yn = spherical_yn(n, x)
+        return jn + 1j * yn
+
+    def plot_rcs(self):
+        frequencies = np.linspace(self.fmin, self.fmax, 500)
+        rcs_values = [self.calculate_rcs(f) for f in frequencies]
+
+        plt.figure(figsize=(10, 6))
+        plt.plot(frequencies, rcs_values, label="RCS", color="blue")
+        plt.xlabel("Frequency (Hz)")
+        plt.ylabel("RCS (m²)")
+        plt.title("Radar Cross Section vs Frequency")
+        plt.grid(True)
+        plt.legend()
+        plt.show()
+
+        # Save results to a text file
+        with open("rcs_results.txt", "w") as file:
+            file.write("Frequency (Hz)\tRCS (m²)\n")
+            for f, rcs in zip(frequencies, rcs_values):
+                file.write(f"{f}\t{rcs}\n")
+
+def load_variant_data(file_path, variant_number):
+    tree = ET.parse(file_path)
+    root = tree.getroot()
+    variant = root.find(f"./variant[@number='{variant_number}']")
+    diameter = float(variant.find('D').text)
+    fmin = float(variant.find('fmin').text)
+    fmax = float(variant.find('fmax').text)
+    return diameter, fmin, fmax
+
+def main():
+    variant_number = 1  # Replace with your variant number
+    diameter, fmin, fmax = load_variant_data('task.xml', variant_number)
+
+    rcs = RCS(diameter, fmin, fmax)
+    rcs.plot_rcs()
+
+if __name__ == "__main__":
+    main()
