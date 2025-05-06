@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.special import spherical_jn, spherical_yn
 import xml.etree.ElementTree as ET
+import requests
 
 class RCS:
     def __init__(self, diameter, fmin, fmax):
@@ -57,18 +58,22 @@ class RCS:
             for f, rcs in zip(frequencies, rcs_values):
                 file.write(f"{f}\t{rcs}\n")
 
-def load_variant_data(file_path, variant_number):
-    tree = ET.parse(file_path)
-    root = tree.getroot()
-    variant = root.find(f"./variant[@number='{variant_number}']")
-    diameter = float(variant.find('D').text)
-    fmin = float(variant.find('fmin').text)
-    fmax = float(variant.find('fmax').text)
-    return diameter, fmin, fmax
+def load_variant_data(url, variant_number):
+    response = requests.get(url)
+    if response.status_code == 200:
+        root = ET.fromstring(response.content)
+        variant = root.find(f"./variant[@number='{variant_number}']")
+        diameter = float(variant.find('D').text)
+        fmin = float(variant.find('fmin').text)
+        fmax = float(variant.find('fmax').text)
+        return diameter, fmin, fmax
+    else:
+        raise Exception("Failed to fetch the XML data.")
 
 def main():
+    url = "https://jenyay.net/uploads/Student/Modelling/task_rcs_02.xml"
     variant_number = 1  # Replace with your variant number
-    diameter, fmin, fmax = load_variant_data('task.xml', variant_number)
+    diameter, fmin, fmax = load_variant_data(url, variant_number)
 
     rcs = RCS(diameter, fmin, fmax)
     rcs.plot_rcs()
