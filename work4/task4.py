@@ -44,7 +44,7 @@ class RCS:
         rcs_values = [self.calculate_rcs(f) for f in frequencies]
 
         plt.figure(figsize=(10, 6))
-        plt.plot(frequencies, rcs_values, label="RCS", color="blue")
+        plt.plot(frequencies, rcs_values, label="RCS", color="purple")
         plt.xlabel("Frequency (Hz)")
         plt.ylabel("RCS (m²)")
         plt.title("Radar Cross Section vs Frequency")
