@@ -24,7 +24,7 @@ class RCS:
         ))**2 for i, f in enumerate(self.f)]
         return self.rcs
     
-    def save_to_txt(self, filename="rcs_results.txt"):
+    def save_to_txt(self, filename="task4.txt"):
         with open(filename, 'w') as file:
             file.write("Frequency(Hz)\tRCS(m²)\n")
             for freq, rcs in zip(self.f, self.rcs):
@@ -40,14 +40,11 @@ class RCS:
         plt.show()
 
 def load_params(url, variant=9):
-    try:
         response = requests.get(url)
         root = ET.fromstring(response.content)
         var = root.find(f"./variant[@number='{variant}']")
         return float(var.find('D').text), float(var.find('fmin').text), float(var.find('fmax').text)
-    except:
-        print("Ошибка загрузки, используются значения по умолчанию")
-        return 0.1, 1e9, 10e9
+   
 
 if __name__ == "__main__":
     D, f_min, f_max = load_params("https://jenyay.net/uploads/Student/Modelling/task_rcs_02.xml")
