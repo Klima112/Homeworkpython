@@ -9,10 +9,10 @@ def f(x, A=0):
     return 0.5 + numerator / denominator
 
 # Создание массива значений для x с шагом 0.01
-x_values = np.arange(-10, 10.01, 0.01)
+x_values = np.arange(-10, 10, 0.01)
 y_values = [f(x) for x in x_values]
 
-# Подготовка данных для записи в JSON (x и y)
+# Подготовка данных для записи в JSON 
 data = [{"x": x, "y": y} for x, y in zip(x_values, y_values)]
 result = {"data": data}
 
@@ -22,7 +22,7 @@ with open('output.json', 'w') as json_file:
 
 print("x \t y (f(x))")
 for x, y in zip(x_values[:100], y_values[:100]):
-    print(f"{x:.2f} \t {y:.5f}")  # Форматирование вывода
+    print(f"{x:.2f} \t {y:.5f}")  
 
 # Построение графика
 plt.figure(figsize=(10, 5))
@@ -31,5 +31,4 @@ plt.title("График функции f(x) при A = 0, X∈[-10;10]")
 plt.xlabel("x")
 plt.ylabel("y (f(x))")
 plt.grid(True)
-plt.legend()
 plt.show()
